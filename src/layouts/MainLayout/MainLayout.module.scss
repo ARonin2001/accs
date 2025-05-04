@@ -1,0 +1,21 @@
+.layout {
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+}
+
+.menu {
+  flex: 1;
+  min-width: 0;
+}
+
+.content {
+  padding: 1rem 3rem;
+}
+
+.footer {
+  text-align: center;
+}
