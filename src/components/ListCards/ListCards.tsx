@@ -1,19 +1,32 @@
-import { Col, Row } from "antd";
-import { FC } from "react";
-import { useNavigate } from "react-router";
+import { Button, Col, Empty, Row, Typography } from "antd";
 import { AppCard } from "../AppCard/AppCard";
 
-interface ListCardsProps {
-  list: any[];
+interface ListCardsProps<T = any> {
+  list: T[] | undefined;
   isLoading?: boolean;
+  onClickCard?: (item: T) => void;
 }
 
-export const ListCards: FC<ListCardsProps> = ({ list, isLoading = false }) => {
-  const navigate = useNavigate();
-
-  const navigateToLessons = () => {
-    navigate("/lessons");
+export const ListCards = <T extends { id: number; title: string }>({
+  list = [],
+  isLoading = false,
+  onClickCard,
+}: ListCardsProps<T>) => {
+  const handleClickCard = (item: T) => {
+    onClickCard?.(item);
   };
+
+  if (!list.length) {
+    return (
+      <Empty
+        image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+        styles={{ image: { height: 60 } }}
+        description={<Typography.Text>Здесь пусто :(</Typography.Text>}
+      >
+        <Button type="primary">СОЗДАТЬ</Button>
+      </Empty>
+    );
+  }
 
   return (
     <div className="courses">
@@ -24,7 +37,7 @@ export const ListCards: FC<ListCardsProps> = ({ list, isLoading = false }) => {
               <Col key={item.id} className="gutter-row" span={6}>
                 <AppCard
                   title={item.title}
-                  onClick={navigateToLessons}
+                  onClick={() => handleClickCard(item)}
                   loading={isLoading}
                 ></AppCard>
               </Col>

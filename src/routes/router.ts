@@ -3,7 +3,8 @@ import { AuthLogin } from "../components/auth/AuthLogin/AuthLogin";
 import { ClearLayout } from "../layouts/ClearLayout/ClearLayout";
 import { MainLayout } from "../layouts/MainLayout/MainLayout";
 import { AuthPage } from "../pages/AuthPage/AuthPage";
-import { CoursesPage } from "../pages/AuthPage/CoursesPage/CoursesPage";
+import { CoursesPage } from "../pages/CoursePage/CoursesPage";
+import { LessonPage } from "../pages/LessonsPage/LessonPage";
 import { LessonsPage } from "../pages/LessonsPage/LessonsPage";
 
 export const router = createBrowserRouter([
@@ -16,8 +17,12 @@ export const router = createBrowserRouter([
         Component: CoursesPage,
       },
       {
-        path: "lessons",
+        path: "courses/:courseId",
         Component: LessonsPage,
+      },
+      {
+        path: "lesson/:id",
+        Component: LessonPage,
       },
     ],
   },
