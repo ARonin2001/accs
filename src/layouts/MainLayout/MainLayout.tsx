@@ -1,25 +1,27 @@
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Typography } from "antd";
 import React from "react";
-import { Outlet } from "react-router";
+import { NavLink, Outlet } from "react-router";
 import styles from "./MainLayout.module.scss";
 
 const { Header, Content, Footer } = Layout;
 
-const items = Array.from({ length: 3 }).map((_, index) => ({
-  key: index + 1,
-  label: `nav ${index + 1}`,
-}));
+const items = [
+  {
+    key: 1,
+    label: <NavLink to="courses">курсы</NavLink>,
+  },
+];
 
 export const MainLayout: React.FC = () => {
   return (
     <Layout className={`layout ${styles.layout}`}>
       <Header className={styles.header}>
-        <h1>LOGO</h1>
+        <Typography.Title style={{ color: "white" }}>LOGO</Typography.Title>
         <Menu
           className={styles.menu}
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={["2"]}
+          defaultSelectedKeys={["1"]}
           items={items}
         />
       </Header>
