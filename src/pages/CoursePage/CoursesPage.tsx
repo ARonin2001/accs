@@ -1,5 +1,9 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { MenuProps, Modal, Typography } from "antd";
+import { Store } from "antd/es/form/interface";
+import { MenuInfo } from "rc-menu/lib/interface";
 import { useNavigate } from "react-router";
 import { Actions } from "../../components/Actions/Actions";
 import { AppCard } from "../../components/AppCard/AppCard";
@@ -12,18 +16,91 @@ import style from "./CoursesPage.module.scss";
 export const CoursesPage: FC = () => {
   const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
+  const [showModalDelete, setShowModalDelete] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<Course | null>(null);
+  const [deleteCourseIsFetching, setDeleteCourseIsFetching] = useState(false);
+  const [initialValues, setInitialValuse] = useState<Store | null>(null);
 
-  const { data, error, isFetching } = Queries.get<Course[]>("course/get-all", [
-    "courses",
+  const { data, error, isFetching, refetch } = Queries.get<Course[]>(
+    "course/get-all",
+    ["courses"]
+  );
+
+  const deleteCourseMutation = Queries.getMutationDelete<Course, any>(
+    "course/delete/" + selectedCard?.id
+  );
+
+  useEffect(() => {
+    if (!showForm && initialValues) {
+      setInitialValuse(null);
+    }
+  }, [showForm]);
+
+  const onClickEditCourse = (course: Course) => {
+    setInitialValuse({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+    });
+    toggleShowForm();
+  };
+
+  const dropdownMenuItems = useRef<MenuProps["items"]>([
+    {
+      key: 1,
+      label: (
+        <Typography.Text
+          data-action="delete"
+          type="danger"
+          editable={{ icon: <DeleteOutlined /> }}
+        >
+          Удалить
+        </Typography.Text>
+      ),
+      onClick: () => setShowModalDelete(true),
+    },
+    {
+      key: 2,
+      label: (
+        <Typography.Text
+          data-action="edit"
+          editable={{ icon: <EditOutlined /> }}
+        >
+          Редактировать
+        </Typography.Text>
+      ),
+    },
   ]);
 
   const toggleShowForm = () => {
     setShowForm((prev) => !prev);
   };
 
-  const navigateToLessons = (item: Course) => {
-    console.log("sdfsdfdsfk", item);
-    navigate(item.id.toString());
+  const navigateToLessons = (course: Course) => {
+    navigate(course.id.toString());
+  };
+
+  const onClickDropdown = (info: MenuInfo, course: Course) => {
+    setSelectedCard(course);
+
+    if (info.domEvent.currentTarget.querySelector('[data-action="edit"]')) {
+      onClickEditCourse(course);
+    }
+  };
+
+  const deleteCourse = async () => {
+    if (!selectedCard) return;
+
+    setDeleteCourseIsFetching(true);
+    const { isPending } = await deleteCourseMutation.mutateAsync(undefined);
+    setDeleteCourseIsFetching(isPending);
+    setShowModalDelete(false);
+    refetch();
+  };
+
+  const onSubmitedForm = () => {
+    toggleShowForm();
+    refetch();
   };
 
   if (error) return <h1>Error {error.message}</h1>;
@@ -40,14 +117,30 @@ export const CoursesPage: FC = () => {
           showExtraClose
           onExtraClick={toggleShowForm}
         >
-          <CourseForm />
+          <CourseForm
+            onSubmited={onSubmitedForm}
+            initialValues={initialValues || undefined}
+          />
         </AppCard>
       ) : (
         <ListCards
           list={data}
           isLoading={isFetching}
           onClickCard={navigateToLessons}
+          dropdownMenuItems={dropdownMenuItems.current}
+          onClickDrowpdown={onClickDropdown}
+          onClickCreate={toggleShowForm}
         />
+      )}
+
+      {showModalDelete && (
+        <Modal
+          title={`Удалить курс "${selectedCard?.title}"`}
+          open={showModalDelete}
+          onCancel={() => setShowModalDelete(false)}
+          onOk={deleteCourse}
+          confirmLoading={deleteCourseIsFetching}
+        ></Modal>
       )}
     </div>
   );

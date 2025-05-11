@@ -1,19 +1,44 @@
-import { Button, Col, Empty, Row, Typography } from "antd";
+import { EllipsisOutlined } from "@ant-design/icons";
+import { Button, Col, Dropdown, Empty, MenuProps, Row, Typography } from "antd";
+import { MenuInfo } from "rc-menu/lib/interface";
+import { MouseEvent } from "react";
 import { AppCard } from "../AppCard/AppCard";
 
 interface ListCardsProps<T = any> {
   list: T[] | undefined;
   isLoading?: boolean;
+  dropdownMenuItems?: MenuProps["items"];
   onClickCard?: (item: T) => void;
+  onClickCardSettings?: (item: T) => void;
+  onClickDrowpdown?: (info: MenuInfo, item: T) => void;
+  onClickCreate?: () => void;
 }
 
 export const ListCards = <T extends { id: number; title: string }>({
   list = [],
   isLoading = false,
+  dropdownMenuItems,
   onClickCard,
+  onClickCardSettings,
+  onClickDrowpdown,
+  onClickCreate,
 }: ListCardsProps<T>) => {
   const handleClickCard = (item: T) => {
     onClickCard?.(item);
+  };
+
+  const cardSettingsOnClick = (
+    event: MouseEvent<HTMLSpanElement, MouseEvent>,
+    item: T
+  ) => {
+    event.stopPropagation();
+    onClickCardSettings?.(item);
+  };
+
+  const handleClickDropdown = (info: MenuInfo, item: T) => {
+    info.domEvent.stopPropagation();
+    console.log("info", info);
+    onClickDrowpdown?.(info, item);
   };
 
   if (!list.length) {
@@ -23,7 +48,9 @@ export const ListCards = <T extends { id: number; title: string }>({
         styles={{ image: { height: 60 } }}
         description={<Typography.Text>Здесь пусто :(</Typography.Text>}
       >
-        <Button type="primary">СОЗДАТЬ</Button>
+        <Button type="primary" onClick={onClickCreate}>
+          СОЗДАТЬ
+        </Button>
       </Empty>
     );
   }
@@ -39,6 +66,19 @@ export const ListCards = <T extends { id: number; title: string }>({
                   title={item.title}
                   onClick={() => handleClickCard(item)}
                   loading={isLoading}
+                  extra={
+                    <Dropdown
+                      menu={{
+                        items: dropdownMenuItems,
+                        onClick: (info) => handleClickDropdown(info, item),
+                      }}
+                      trigger={["click"]}
+                    >
+                      <EllipsisOutlined
+                        onClick={(event) => cardSettingsOnClick(event, item)}
+                      />
+                    </Dropdown>
+                  }
                 ></AppCard>
               </Col>
             );

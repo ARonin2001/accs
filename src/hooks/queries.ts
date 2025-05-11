@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosRequestConfig } from "axios";
 import { instance } from "../api";
 
 export class Queries {
@@ -18,6 +19,15 @@ export class Queries {
     return useMutation({
       mutationFn: async (value: P) => {
         const response = await instance.post<G>(this.API_URL + api, value);
+        return response.data;
+      },
+    });
+  }
+
+  static getMutationDelete<P, G>(api: string) {
+    return useMutation({
+      mutationFn: async (params: AxiosRequestConfig<P> | undefined) => {
+        const response = await instance.delete<G>(this.API_URL + api, params);
         return response.data;
       },
     });

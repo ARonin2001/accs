@@ -1,16 +1,26 @@
 import { Button, Form, Input, Select } from "antd";
+import { Store } from "antd/es/form/interface";
 import TextArea from "antd/es/input/TextArea";
 import { FC } from "react";
 import { CreatingCourseDto } from "../../../dto/CreatingCourseDto";
 import { Queries } from "../../../hooks/queries";
 
 type FieldType = {
+  id?: number;
   title: string;
   description?: string;
   status: number[];
 };
 
-export const CourseForm: FC = () => {
+interface CourseFormProps {
+  onSubmited?: () => void;
+  initialValues?: Store;
+}
+
+export const CourseForm: FC<CourseFormProps> = ({
+  initialValues,
+  onSubmited,
+}) => {
   const [form] = Form.useForm();
 
   const mutation = Queries.getMutationPost<CreatingCourseDto, any>(
@@ -24,6 +34,7 @@ export const CourseForm: FC = () => {
         ...formValues,
         status: formValues.status[0],
       });
+      onSubmited?.();
     } catch (err) {
       console.error(err);
     }
@@ -34,8 +45,9 @@ export const CourseForm: FC = () => {
       name="add-course-form"
       layout="vertical"
       form={form}
-      initialValues={{ status: [1] }}
+      initialValues={{ status: [1], ...initialValues }}
     >
+      <Form.Item<FieldType> name="id" style={{ display: "none" }} />
       <Form.Item<FieldType>
         label="Название"
         name="title"
