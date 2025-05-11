@@ -1,7 +1,11 @@
-import { EllipsisOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EllipsisOutlined,
+} from "@ant-design/icons";
 import { Button, Col, Dropdown, Empty, MenuProps, Row, Typography } from "antd";
 import { MenuInfo } from "rc-menu/lib/interface";
-import { MouseEvent } from "react";
+import { useRef } from "react";
 import { AppCard } from "../AppCard/AppCard";
 
 interface ListCardsProps<T = any> {
@@ -12,6 +16,9 @@ interface ListCardsProps<T = any> {
   onClickCardSettings?: (item: T) => void;
   onClickDrowpdown?: (info: MenuInfo, item: T) => void;
   onClickCreate?: () => void;
+  onClickDropdownDelete?: () => void;
+  onClickDropdownEdit?: () => void;
+  onOpenDropdown?: (open: boolean, item: T) => void;
 }
 
 export const ListCards = <T extends { id: number; title: string }>({
@@ -22,22 +29,52 @@ export const ListCards = <T extends { id: number; title: string }>({
   onClickCardSettings,
   onClickDrowpdown,
   onClickCreate,
+  onClickDropdownDelete,
+  onClickDropdownEdit,
+  onOpenDropdown,
 }: ListCardsProps<T>) => {
+  const dropdownMenu = useRef<MenuProps["items"]>([
+    {
+      key: 1,
+      label: (
+        <Typography.Text
+          data-action="delete"
+          type="danger"
+          editable={{ icon: <DeleteOutlined /> }}
+        >
+          Удалить
+        </Typography.Text>
+      ),
+      onClick: onClickDropdownDelete,
+    },
+    {
+      key: 2,
+      label: (
+        <Typography.Text
+          data-action="edit"
+          editable={{ icon: <EditOutlined /> }}
+        >
+          Редактировать
+        </Typography.Text>
+      ),
+      onClick: onClickDropdownEdit,
+    },
+  ]);
+
   const handleClickCard = (item: T) => {
     onClickCard?.(item);
   };
 
   const cardSettingsOnClick = (
-    event: MouseEvent<HTMLSpanElement, MouseEvent>,
+    event: React.MouseEvent<HTMLSpanElement, MouseEvent>,
     item: T
   ) => {
     event.stopPropagation();
     onClickCardSettings?.(item);
   };
 
-  const handleClickDropdown = (info: MenuInfo, item: T) => {
+  const handleClickDropdownItem = (info: MenuInfo, item: T) => {
     info.domEvent.stopPropagation();
-    console.log("info", info);
     onClickDrowpdown?.(info, item);
   };
 
@@ -69,10 +106,13 @@ export const ListCards = <T extends { id: number; title: string }>({
                   extra={
                     <Dropdown
                       menu={{
-                        items: dropdownMenuItems,
-                        onClick: (info) => handleClickDropdown(info, item),
+                        items: dropdownMenu.current,
+                        onClick: (info) => handleClickDropdownItem(info, item),
                       }}
                       trigger={["click"]}
+                      onOpenChange={(open: boolean) =>
+                        onOpenDropdown?.(open, item)
+                      }
                     >
                       <EllipsisOutlined
                         onClick={(event) => cardSettingsOnClick(event, item)}

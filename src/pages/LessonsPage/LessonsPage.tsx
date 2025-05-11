@@ -1,3 +1,6 @@
+import { Modal } from "antd";
+import { Store } from "antd/es/form/interface";
+import { MenuInfo } from "rc-menu/lib/interface";
 import { FC, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Actions } from "../../components/Actions/Actions";
@@ -10,12 +13,21 @@ export const LessonsPage: FC = () => {
   const { courseId } = useParams();
   const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
+  const [showModalDelete, setShowModalDelete] = useState(false);
+  const [selectedLesson, setSelectedLesson] = useState<LessonDto | null>(null);
+  const [initialValues, setInitialValues] = useState<Store | undefined>(
+    undefined
+  );
+
+  const deleteMutation = Queries.getMutationDelete<LessonDto, any>(
+    "lesson/delete/" + selectedLesson?.id
+  );
 
   const toggleShowForm = () => {
     setShowForm((prev) => !prev);
   };
 
-  const { data: lessons } = Queries.get<LessonDto[]>(
+  const { data: lessons, refetch } = Queries.get<LessonDto[]>(
     `lesson/get-by-course-id/${courseId}`,
     ["get-by-course-id"]
   );
@@ -24,13 +36,67 @@ export const LessonsPage: FC = () => {
     navigate("/lesson/" + lesson.id);
   };
 
+  const onSuccessSubmit = () => {
+    toggleShowForm();
+    refetch();
+  };
+
+  const onClickDropdownDelete = () => {
+    setShowModalDelete(true);
+  };
+
+  const deleteLesson = async () => {
+    await deleteMutation.mutateAsync(undefined);
+    setShowModalDelete(false);
+    refetch();
+  };
+
+  const setInitialValuesForm = (lesson: LessonDto) => {
+    setInitialValues({
+      id: lesson.id,
+      title: lesson.title,
+      description: lesson.description,
+      body: lesson.body,
+    });
+  };
+
+  const onClickDropdown = (info: MenuInfo, lesson: LessonDto) => {
+    const dataAction = info.domEvent.currentTarget
+      .querySelector("[data-action]")
+      ?.getAttribute("data-action");
+
+    if (dataAction === "edit") {
+      setInitialValuesForm(lesson);
+      toggleShowForm();
+    }
+  };
+
   return (
     <div className="lesson_page">
       <Actions onClickAdd={toggleShowForm} />
       {showForm ? (
-        <LessonCreateForm />
+        <LessonCreateForm
+          courseId={Number(courseId) || 1}
+          initialValues={initialValues}
+          onSuccessSubmit={onSuccessSubmit}
+        />
       ) : (
-        <ListCards list={lessons} onClickCard={navigateToLessonById} />
+        <ListCards
+          list={lessons}
+          onClickCard={navigateToLessonById}
+          onClickDropdownDelete={onClickDropdownDelete}
+          onClickDrowpdown={onClickDropdown}
+          onClickCreate={() => setShowForm(true)}
+        />
+      )}
+
+      {showModalDelete && (
+        <Modal
+          title={`Удалить урок `}
+          open={showModalDelete}
+          onCancel={() => setShowModalDelete(false)}
+          onOk={deleteLesson}
+        ></Modal>
       )}
     </div>
   );

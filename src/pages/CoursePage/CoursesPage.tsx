@@ -1,7 +1,6 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { MenuProps, Modal, Typography } from "antd";
+import { Modal } from "antd";
 import { Store } from "antd/es/form/interface";
 import { MenuInfo } from "rc-menu/lib/interface";
 import { useNavigate } from "react-router";
@@ -45,32 +44,13 @@ export const CoursesPage: FC = () => {
     toggleShowForm();
   };
 
-  const dropdownMenuItems = useRef<MenuProps["items"]>([
-    {
-      key: 1,
-      label: (
-        <Typography.Text
-          data-action="delete"
-          type="danger"
-          editable={{ icon: <DeleteOutlined /> }}
-        >
-          Удалить
-        </Typography.Text>
-      ),
-      onClick: () => setShowModalDelete(true),
-    },
-    {
-      key: 2,
-      label: (
-        <Typography.Text
-          data-action="edit"
-          editable={{ icon: <EditOutlined /> }}
-        >
-          Редактировать
-        </Typography.Text>
-      ),
-    },
-  ]);
+  const onClickDropdown = (info: MenuInfo, course: Course) => {
+    setSelectedCard(course);
+
+    if (info.domEvent.currentTarget.querySelector('[data-action="edit"]')) {
+      onClickEditCourse(course);
+    }
+  };
 
   const toggleShowForm = () => {
     setShowForm((prev) => !prev);
@@ -78,14 +58,6 @@ export const CoursesPage: FC = () => {
 
   const navigateToLessons = (course: Course) => {
     navigate(course.id.toString());
-  };
-
-  const onClickDropdown = (info: MenuInfo, course: Course) => {
-    setSelectedCard(course);
-
-    if (info.domEvent.currentTarget.querySelector('[data-action="edit"]')) {
-      onClickEditCourse(course);
-    }
   };
 
   const deleteCourse = async () => {
@@ -126,10 +98,10 @@ export const CoursesPage: FC = () => {
         <ListCards
           list={data}
           isLoading={isFetching}
-          onClickCard={navigateToLessons}
-          dropdownMenuItems={dropdownMenuItems.current}
           onClickDrowpdown={onClickDropdown}
+          onClickCard={navigateToLessons}
           onClickCreate={toggleShowForm}
+          onClickDropdownDelete={() => setShowModalDelete(true)}
         />
       )}
 
