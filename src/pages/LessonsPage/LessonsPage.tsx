@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { Modal, Typography } from "antd";
 import { Store } from "antd/es/form/interface";
 import { MenuInfo } from "rc-menu/lib/interface";
 import { FC, useState } from "react";
@@ -65,14 +65,20 @@ export const LessonsPage: FC = () => {
       .querySelector("[data-action]")
       ?.getAttribute("data-action");
 
-    if (dataAction === "edit") {
-      setInitialValuesForm(lesson);
-      toggleShowForm();
+    switch (dataAction) {
+      case "edit":
+        setInitialValuesForm(lesson);
+        toggleShowForm();
+        break;
+      case "delete":
+        setSelectedLesson(lesson);
+        break;
     }
   };
 
   return (
     <div className="lesson_page">
+      <Typography.Title>Уроки</Typography.Title>
       <Actions onClickAdd={toggleShowForm} />
       {showForm ? (
         <LessonCreateForm

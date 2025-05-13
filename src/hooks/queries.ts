@@ -24,6 +24,15 @@ export class Queries {
     });
   }
 
+  static getMutationPut<P, G>(api: string) {
+    return useMutation({
+      mutationFn: async (params: P) => {
+        const response = await instance.put<G>(this.API_URL + api, params);
+        return response.data;
+      },
+    });
+  }
+
   static getMutationDelete<P, G>(api: string) {
     return useMutation({
       mutationFn: async (params: AxiosRequestConfig<P> | undefined) => {

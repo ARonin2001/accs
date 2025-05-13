@@ -14,19 +14,19 @@ export const CoursesPage: FC = () => {
   const {
     data: courses,
     error,
-    isFetching,
     refetch,
-  } = Queries.get<Course[]>("course/get-all?" + filterQuery, ["courses"]);
+  } = Queries.get<Course[]>("course/get-all" + filterQuery, ["courses"]);
 
   useEffect(() => {
     refetch();
   }, [filterQuery]);
 
   const onSubmitFilter = (fieldsValue: CourseFilterFieldType) => {
-    let query = "";
+    let query = "?";
 
     for (const item in fieldsValue) {
-      query += `${item}=${fieldsValue[item as keyof CourseFilterFieldType]}&`;
+      if (fieldsValue[item as keyof CourseFilterFieldType])
+        query += `${item}=${fieldsValue[item as keyof CourseFilterFieldType]}&`;
     }
 
     setFilterQuery(query);
@@ -37,12 +37,9 @@ export const CoursesPage: FC = () => {
 
   return (
     <div className="courses_page">
+      <Typography.Title>Курсы</Typography.Title>
       <CourseFilter onSubmit={onSubmitFilter} />
-      <CourseContent
-        courses={courses}
-        isFetching={isFetching}
-        refetchCourses={refetch}
-      />
+      <CourseContent courses={courses} refetchCourses={refetch} />
     </div>
   );
 };

@@ -1,6 +1,6 @@
-import { Layout, Menu, Typography } from "antd";
+import { Button, Layout, Menu, Typography } from "antd";
 import React from "react";
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet, useNavigate } from "react-router";
 import styles from "./MainLayout.module.scss";
 
 const { Header, Content, Footer } = Layout;
@@ -13,6 +13,8 @@ const items = [
 ];
 
 export const MainLayout: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <Layout className={`layout ${styles.layout}`}>
       <Header className={styles.header}>
@@ -26,6 +28,12 @@ export const MainLayout: React.FC = () => {
         />
       </Header>
       <Content className={styles.content}>
+        <Button type="link" onClick={() => navigate(-1)}>
+          {"<"} назад
+        </Button>
+        <Button type="link" onClick={() => navigate(1)}>
+          вперёд {">"}
+        </Button>
         <Outlet />
       </Content>
       <Footer className={styles.footer}>

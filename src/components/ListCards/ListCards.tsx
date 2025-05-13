@@ -24,7 +24,6 @@ interface ListCardsProps<T = any> {
 export const ListCards = <T extends { id: number; title: string }>({
   list = [],
   isLoading = false,
-  dropdownMenuItems,
   onClickCard,
   onClickCardSettings,
   onClickDrowpdown,

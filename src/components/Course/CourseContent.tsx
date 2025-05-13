@@ -23,7 +23,6 @@ interface CourseContentProps {
 
 export const CourseContent: FC<CourseContentProps> = ({
   courses = [],
-  isFetching = false,
   refetchCourses,
 }) => {
   const [showForm, setShowForm] = useState(false);
@@ -32,11 +31,6 @@ export const CourseContent: FC<CourseContentProps> = ({
   const [selectedCard, setSelectedCard] = useState<Course | null>(null);
   const [deleteCourseIsFetching, setDeleteCourseIsFetching] = useState(false);
   const [initialValues, setInitialValuse] = useState<Store | null>(null);
-
-  //   const { data, error, isFetching, refetch } = Queries.get<Course[]>(
-  // "course/get-all",
-  // ["courses"]
-  //   );
 
   const deleteCourseMutation = Queries.getMutationDelete<Course, any>(
     "course/delete/" + selectedCard?.id
@@ -89,7 +83,7 @@ export const CourseContent: FC<CourseContentProps> = ({
   };
 
   return (
-    <div className="courses">
+    <div className="courses" style={{ padding: "10px 0" }}>
       <Actions onClickAdd={toggleShowForm} />
 
       {showForm ? (
@@ -108,7 +102,6 @@ export const CourseContent: FC<CourseContentProps> = ({
       ) : (
         <ListCards
           list={courses}
-          isLoading={isFetching}
           onClickDrowpdown={onClickDropdown}
           onClickCard={navigateToLessons}
           onClickCreate={toggleShowForm}
